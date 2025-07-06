@@ -42,7 +42,7 @@ def country_to_continent(country_name):
 # --- Load data from disk ---
 st.title("🌍 World Happiness Interactive Dashboard")
 
-csv_path = "/workspaces/data_viz_project_masters/world_happiness_report.csv"
+csv_path = "world_happiness_report.csv"
 if os.path.exists(csv_path):
     df = pd.read_csv(csv_path)
 else:
