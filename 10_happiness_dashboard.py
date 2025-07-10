@@ -51,16 +51,20 @@ else:
 
 # --- Add Continent column ---
 with st.spinner("Assigning continents..."):
-    df['Continent'] = df['Country'].apply(country_to_continent)
+    # Updated to use 'Country name' instead of 'Country'
+    df['Continent'] = df['Country name'].apply(country_to_continent)
     df = df.dropna(subset=['Continent'])
 
 # --- Sidebar filters ---
 st.sidebar.header("Filters")
+
 continents = ['All'] + sorted(df['Continent'].unique())
 selected_continent = st.sidebar.selectbox("Select Continent", continents, index=0)
 
-indicator_options = [col for col in df.columns if col not in ['Country', 'Year', 'Continent']]
-selected_indicator = st.sidebar.selectbox("Select Indicator", indicator_options, index=indicator_options.index('Happiness_Score') if 'Happiness_Score' in indicator_options else 0)
+# Updated to exclude correct column names and use 'Life Ladder' as default
+indicator_options = [col for col in df.columns if col not in ['Country name', 'year', 'Continent']]
+default_indicator = 'Life Ladder' if 'Life Ladder' in indicator_options else indicator_options[0]
+selected_indicator = st.sidebar.selectbox("Select Indicator", indicator_options, index=indicator_options.index(default_indicator))
 
 if selected_continent == 'All':
     filtered_df = df
@@ -69,22 +73,25 @@ else:
 
 # --- Choropleth Map ---
 st.subheader(f"World Map of {selected_indicator}")
+
 fig_map = px.choropleth(
     filtered_df,
-    locations='Country',
+    locations='Country name',  # Updated to use 'Country name'
     locationmode='country names',
     color=selected_indicator,
-    hover_name='Country',
+    hover_name='Country name',  # Updated to use 'Country name'
     color_continuous_scale=[
         "#08306b", "#2171b5", "#6baed6", "#9ecae1", "#e5f5f9",
         "#fcae91", "#fb6a4a", "#cb181d"
     ],
     title=f'World Map of {selected_indicator}'
 )
+
 st.plotly_chart(fig_map, use_container_width=True)
 
 # --- Box Plot ---
 st.subheader(f"{selected_indicator} Distribution by Continent")
+
 fig_box = px.box(
     filtered_df,
     x='Continent',
@@ -93,18 +100,22 @@ fig_box = px.box(
     color_discrete_sequence=px.colors.qualitative.Set2,
     points="all"
 )
+
 st.plotly_chart(fig_box, use_container_width=True)
 
 # --- Scatter Plot ---
-if 'GDP_per_Capita' in df.columns and selected_indicator != 'GDP_per_Capita':
+# Updated to use 'Log GDP per capita' instead of 'GDP_per_Capita'
+if 'Log GDP per capita' in df.columns and selected_indicator != 'Log GDP per capita':
     st.subheader(f"GDP per Capita vs. {selected_indicator}")
+    
     fig_scatter = px.scatter(
         filtered_df,
-        x='GDP_per_Capita',
+        x='Log GDP per capita',  # Updated column name
         y=selected_indicator,
         color='Continent',
-        hover_name='Country',
+        hover_name='Country name',  # Updated to use 'Country name'
         color_discrete_sequence=px.colors.qualitative.Set2,
-        title=f'GDP per Capita vs. {selected_indicator}'
+        title=f'Log GDP per Capita vs. {selected_indicator}'
     )
+    
     st.plotly_chart(fig_scatter, use_container_width=True)
